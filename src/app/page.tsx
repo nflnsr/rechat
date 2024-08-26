@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -20,6 +20,7 @@ import {
   Download,
   Play,
   X,
+  ArrowLeft,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -189,6 +190,13 @@ export default function ChatApp() {
     setMessages(generateRandomMessages(chat));
   };
 
+  useEffect(() => {
+    const chatList = document.getElementById("chat-list");
+    if (selectedChat === null) {
+      chatList?.classList.remove("hidden");
+    }
+  }, []);
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-14 flex-col border-r bg-background lg:flex">
@@ -340,7 +348,12 @@ export default function ChatApp() {
           </DropdownMenu>
         </header>
         <main className="flex flex-1 flex-col lg:flex-row">
-          <Card className="lg:w-1/3 xl:w-1/4">
+          <Card
+            id="chat-list"
+            className={`lg:w-1/3 xl:w-1/4 
+            ${selectedChat?.id && "hidden lg:block"}
+            `}
+          >
             <CardHeader>
               <CardTitle>Chats</CardTitle>
               <Tabs
@@ -394,10 +407,22 @@ export default function ChatApp() {
               </ScrollArea>
             </CardContent>
           </Card>
-          <Card className="flex-1">
+          <Card
+            className={`flex-1 ${selectedChat === null && "hidden lg:block"}`}
+          >
             {selectedChat ? (
               <>
-                <CardHeader className="flex flex-row items-center">
+                <CardHeader className="flex flex-row items-center justify-center">
+                  <div className="pt-1.5 mr-4 lg:hidden">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setSelectedChat(null)}
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                      <span className="sr-only">Close chat</span>
+                    </Button>
+                  </div>
                   <div className="flex items-center gap-4">
                     {selectedChat.isGroup ? (
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -576,7 +601,11 @@ export default function ChatApp() {
                               <div className="flex items-center gap-2">
                                 <FileText className="h-5 w-5" />
                                 <span>{message.content.content}</span>
-                                <Button size="sm" variant="outline" className="text-black">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-black"
+                                >
                                   <Download className="mr-2 h-4 w-4 text-black" />
                                   Download
                                 </Button>
